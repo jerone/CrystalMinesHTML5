@@ -7,6 +7,7 @@ requirejs.config({
 require(['config', 'Quintus', 'player', 'finish', 'enemy', 'level-1', 'endGame'], function (config, Q) {
 
 	console.log("Game starting...", !!Q);
+	window.Q = Q;
 
 	Q.load("sprites.png, sprites.json, level-1.json, tiles.png", function () {
 		Q.sheet("tiles", "tiles.png", { tilew: config.spriteDimension, tileh: config.spriteDimension });
