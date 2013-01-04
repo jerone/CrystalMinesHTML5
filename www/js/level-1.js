@@ -1,8 +1,8 @@
 define(['config', 'Quintus'], function (config, Q) {
 
-	Q.scene("level1", function (stage) {
+	Q.scene("level-1", function (stage) {
 		stage.collisionLayer(new Q.TileLayer({
-			dataAsset: 'level1.json',
+			dataAsset: 'level-1.json',
 			sheet: 'tiles',
 			tileW: config.spriteDimension,
 			tileH: config.spriteDimension
