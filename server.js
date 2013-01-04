@@ -21,10 +21,10 @@ var colors = {
 	reset	: '\u001b[0m'
 };
 
-var app =  connect().use(connect.static('app'))
+var app =  connect().use(connect.static('www'))
 					.use('/js/lib/', connect.static('node_modules/requirejs/'))
 					.use('/node_modules', connect.static('node_modules'))
-					.use(function onCallback(request, response){
+					.use(function onCallback(request, response) {
 						if (request.url === '/') {
 							console.log('request made:', request.url);
 						} else {
