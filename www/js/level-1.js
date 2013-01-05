@@ -1,5 +1,12 @@
 define(['config', 'Quintus'], function (config, Q) {
 
+	// Calculate correct tile location;
+	function placeSprite(tileIndex){
+		var tileLocation = tileIndex * config.spriteDimension,
+			tileHalf = config.spriteDimension / 2;
+		return (tileLocation - tileHalf) * config.scale;
+	}
+
 	Q.scene("level-1", function (stage) {
 	
 		// add level;
@@ -16,29 +23,28 @@ define(['config', 'Quintus'], function (config, Q) {
 		}))();
 		//tileLayer.matrix.scale(config.scale, config.scale);
 		stage.collisionLayer(tileLayer);
-		
 
 		// add player;
 		var player = stage.insert(new Q.Player({ 
-			x: ((13 * config.spriteDimension) - (config.spriteDimension / 2)) * config.scale, 
-			y: ((8 * config.spriteDimension) - (config.spriteDimension / 2)) * config.scale
+			x: placeSprite(13), 
+			y: placeSprite(8)
 		}));
 		//stage.add("viewport").follow(player);
 
 		// add enemies;
 		stage.insert(new Q.Enemy({ 
-			x: (23 * config.spriteDimension * config.scale), 
-			y: (2 * config.spriteDimension * config.scale) 
+			x: placeSprite(23), 
+			y: placeSprite(3) 
 		}));
 		stage.insert(new Q.Enemy({ 
-			x: (26 * config.spriteDimension * config.scale), 
-			y: (2 * config.spriteDimension * config.scale) 
+			x: placeSprite(26), 
+			y: placeSprite(3) 
 		}));
 
 		// add exit;
 		stage.insert(new Q.Exit({ 
-			x: ((6 * config.spriteDimension) - (config.spriteDimension / 2)) * config.scale, 
-			y: ((4 * config.spriteDimension) - (config.spriteDimension / 2)) * config.scale 
+			x: placeSprite(6), 
+			y: placeSprite(4)
 		}));
 	});
 
