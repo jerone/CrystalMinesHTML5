@@ -1,5 +1,6 @@
 ﻿define(function () {
 	return {
-		spriteDimension: 13  // amount of pixels the sprites are width & height;
+		spriteDimension: 13,	// amount of pixels the sprites are width & height;
+		scale: 1				// overall scale;
 	};
 });

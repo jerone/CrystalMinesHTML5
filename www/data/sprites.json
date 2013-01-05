@@ -1,5 +1,5 @@
 {
 	"player":{"sx":0,"sy":0,"cols":1,"tilew":13,"tileh":13,"frames":1},
-	"finish":{"sx":13,"sy":0,"cols":1,"tilew":13,"tileh":13,"frames":1},
+	"exit":{"sx":13,"sy":0,"cols":1,"tilew":13,"tileh":13,"frames":1},
 	"enemy":{"sx":26,"sy":0,"cols":1,"tilew":13,"tileh":13,"frames":1}
 }

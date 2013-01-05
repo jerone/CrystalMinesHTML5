@@ -400,7 +400,7 @@ Quintus.Scenes = function(Q) {
 
     collisionLayer: function(layer) {
       this._collisionLayer = layer;
-      this.insert(layer);
+      return this.insert(layer);
     },
 
     search: function(obj,collisionMask) {

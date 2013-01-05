@@ -1,8 +1,9 @@
-define(['Quintus'], function (Q) {
+define(['config', 'Quintus'], function (config, Q) {
 
 	Q.Sprite.extend("Enemy", {
 		init: function (p) {
-			this._super(p, { sheet: 'enemy', vx: 100, vy: 100 });
+			this._super(p, { sheet: 'enemy', vx: 100, vy: 100, scale: config.scale });
+			
 			this.add('2d, aiBounce2');
 
 			this.on("bump.left,bump.right,bump.bottom,bump.top", function (collision) {

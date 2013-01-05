@@ -4,7 +4,7 @@ requirejs.config({
 	shim: {}
 });
 
-require(['config', 'Quintus', 'player', 'finish', 'enemy', 'level-1', 'endGame'], function (config, Q) {
+require(['config', 'Quintus', 'player', 'exit', 'enemy', 'level-1', 'endGame'], function (config, Q) {
 
 	console.log("Game starting...", !!Q);
 	window.Q = Q;
