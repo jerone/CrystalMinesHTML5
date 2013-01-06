@@ -26,19 +26,19 @@ define(['config', 'Quintus'], function (config, Q) {
 
 		// add player;
 		var player = stage.insert(new Q.Player({ 
-			x: placeSprite(13), 
-			y: placeSprite(8)
+			x: placeSprite(19), 
+			y: placeSprite(7)
 		}));
 		//stage.add("viewport").follow(player);
 
 		// add enemies;
-		stage.insert(new Q.Enemy({ 
+		/*stage.insert(new Q.Enemy({ 
 			x: placeSprite(23), 
 			y: placeSprite(3) 
-		}));
+		}));*/
 		stage.insert(new Q.Enemy({ 
-			x: placeSprite(26), 
-			y: placeSprite(3) 
+			x: placeSprite(28), 
+			y: placeSprite(7) 
 		}));
 
 		// add exit;
