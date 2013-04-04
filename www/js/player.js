@@ -5,7 +5,8 @@ define(['config', 'Quintus'], function (config, Q) {
 			this._super(p, { 
 				sheet: "player", 
 				stepping: false, 
-				stepDistance: config.spriteDimension / 4, stepDelay: 0.05, 
+				stepDistance: config.spriteDimension / 4,
+				stepDelay: 0.05,
 				scale: config.scale
 			});
 

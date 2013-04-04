@@ -9,7 +9,7 @@ define(['config', 'Quintus'], function (config, Q) {
 				scale: config.scale 
 			});
 			
-			this.add('WalkAround');
+			this.add('2d, aiRound');
 
 			this.on("bump.left,bump.right,bump.bottom,bump.top", function (collision) {
 				if (collision.obj.isA("Player")) {
