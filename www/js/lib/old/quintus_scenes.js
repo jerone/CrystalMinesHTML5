@@ -232,8 +232,8 @@ Quintus.Scenes = function(Q) {
     },
 
     destroyed: function() {
-      this.invoke("debind");
       this.trigger("destroyed");
+
     },
 
     // Needs to be separated out so the current stage can be set
@@ -400,7 +400,7 @@ Quintus.Scenes = function(Q) {
 
     collisionLayer: function(layer) {
       this._collisionLayer = layer;
-      this.insert(layer);
+      return this.insert(layer);
     },
 
     search: function(obj,collisionMask) {
@@ -414,39 +414,6 @@ Quintus.Scenes = function(Q) {
 
       col = this.gridTest(obj,collisionMask,this._collisionLayer);
       return col;
-    },
-
-    _locateObj: {
-      p: { 
-        x: 0,
-        y: 0,
-        w: 1,
-        h: 1
-      }, grid: {}
-    },
-
-    locate: function(x,y,collisionMask) {
-      var col = null;
-
-      this._locateObj.p.x = x;
-      this._locateObj.p.y = y;
-
-      this.regrid(this._locateObj,true);
-
-      if(this._collisionLayer && (this._collisionLayer.p.type & collisionMask)) {
-        col = this._collisionLayer.collide(this._locateObj);
-      }
-
-      if(!col) { 
-        col = this.gridTest(this._locateObj,collisionMask,this._collisionLayer);
-      }
-
-      if(col && col.obj) {
-        return col.obj;
-      } else {
-        return false;
-      }
-
     },
 
     collide: function(obj,collisionMask) {
@@ -463,8 +430,8 @@ Quintus.Scenes = function(Q) {
         }
       }
 
-      maxCol = 3;
-      while(maxCol > 0 && (col2 = this.gridTest(obj,collisionMask,this._collisionLayer))) {
+      col2 = this.gridTest(obj,collisionMask,this._collisionLayer);
+      if(col2) {
         obj.trigger('hit',col2);
         obj.trigger('hit.sprite',col2);
 
@@ -483,7 +450,6 @@ Quintus.Scenes = function(Q) {
         obj2.trigger('hit.sprite',col2);
 
         this.regrid(obj);
-        maxCol--;
       }
 
       return col2 || col;
@@ -524,10 +490,10 @@ Quintus.Scenes = function(Q) {
 
       var c = item.c || item.p;
 
-      var gridX1 = Math.floor((c.x - c.cx) / this.options.gridW),
-          gridY1 = Math.floor((c.y - c.cy) / this.options.gridH),
-          gridX2 = Math.floor((c.x - c.cx + c.w) / this.options.gridW),
-          gridY2 = Math.floor((c.y - c.cy + c.h) / this.options.gridH),
+      var gridX1 = Math.floor(c.x / this.options.gridW),
+          gridY1 = Math.floor(c.y / this.options.gridH),
+          gridX2 = Math.floor((c.x + c.w) / this.options.gridW),
+          gridY2 = Math.floor((c.y + c.h) / this.options.gridH),
           grid = item.grid;
 
       if(grid.X1 !== gridX1 || grid.X2 !== gridX2 || 
@@ -543,26 +509,22 @@ Quintus.Scenes = function(Q) {
       }
     },
 
-    updateSprites: function(items,dt,isContainer) {
+    stepChildren: function(dt) {
       var item;
 
-      for(var i=0,len=items.length;i<len;i++) {              
-        item = items[i];
-        if(isContainer || !item.container) { 
-          item.update(dt);
-          Q._generateCollisionPoints(item);
-          this.regrid(item);
-        }
+      for(var i=0,len=this.items.length;i<len;i++) {              
+        item = this.items[i];
+        if(item.step) { item.step(dt); }
+        Q._generateCollisionPoints(item);
+        this.regrid(item);
       }
     },
-
-
 
     step:function(dt) {
       if(this.paused) { return false; }
 
       this.trigger("prestep",dt);
-      this.updateSprites(this.items,dt);
+      this.stepChildren(dt);
       this.trigger("step",dt);
 
       if(this.removeList.length > 0) {
@@ -581,14 +543,7 @@ Quintus.Scenes = function(Q) {
       }
       this.trigger("prerender",ctx);
       this.trigger("beforerender",ctx);
-
-      for(var i=0,len=this.items.length;i<len;i++) {              
-        var item = this.items[i];
-        // Don't render sprites with containers (sprites do that themselves)
-        if(!item.container) { 
-          item.render(ctx);
-        }
-      }
+      this.invoke("render",ctx);
       this.trigger("render",ctx);
       this.trigger("postrender",ctx);
     }
@@ -606,7 +561,6 @@ Quintus.Scenes = function(Q) {
       // Generate an object list from the selector
       // TODO: handle array selectors
       this.items = this.stage.lists[this.selector] || this.emptyList;
-      this.length = this.items.length;
     },
 
     each: function(callback) {
@@ -737,8 +691,8 @@ Quintus.Scenes = function(Q) {
 
     // Grab the stage class, pulling from options, the scene default, or use
     // the default stage
-    var StageClass = (Q._popProperty(options,"stageClass")) || 
-                     (scene && scene.opts.stageClass) || Q.Stage;
+    var StageClass = (Q._popProperty(options,"StageClass")) || 
+                     (scene && scene.opts.StageClass) || Q.Stage;
 
     // Figure out which stage to use
     num = Q._isUndefined(num) ? ((scene && scene.opts.stage) || 0) : num;
@@ -767,6 +721,7 @@ Quintus.Scenes = function(Q) {
   };
 
   Q.stageGameLoop = function(dt) {
+    if(Q.ctx) { Q.clear(); }
 
     if(dt < 0) { dt = 1.0/60; }
     if(dt > 1/15) { dt  = 1.0/15; }
@@ -776,15 +731,6 @@ Quintus.Scenes = function(Q) {
       var stage = Q.stage();
       if(stage) {
         stage.step(dt);
-      }
-    }
-
-    if(Q.ctx) { Q.clear(); }
-
-    for(var i =0,len=Q.stages.length;i<len;i++) {
-      Q.activeStage = i;
-      var stage = Q.stage();
-      if(stage) {
         stage.render(Q.ctx);
       }
     }

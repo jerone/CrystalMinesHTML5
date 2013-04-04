@@ -1,4 +1,3 @@
-console.log("2");
 //     Quintus Game Engine
 //     (c) 2012 Pascal Rettig, Cykod LLC
 //     Quintus may be freely distributed under the MIT license or GPLv2 License.
@@ -58,6 +57,7 @@ var Quintus = function Quintus(opts) {
   //     // Set the angry property on all Enemy1 class objects to true
   //     Q("Enemy1").p({ angry: true });
   //     
+  //
   var Q = function(selector,scope,options) {   
     return Q.select(selector,scope,options);
   };
@@ -197,7 +197,7 @@ var Quintus = function Quintus(opts) {
   };
 
   // Invoke the named property on each element of the array
-  Q._invoke = function(arr,property,arg1,arg2) {
+  Q._invoke= function(arr,property,arg1,arg2) {
     if (arr == null) { return; }
     for (var i = 0, l = arr.length; i < l; i++) {
       arr[i][property](arg1,arg2);
@@ -274,7 +274,7 @@ var Quintus = function Quintus(opts) {
   };
 
   Q._range = function(start,stop,step) {
-    step = step || 1;
+    step = arguments[2] || 1;
 
     var len = Math.max(Math.ceil((stop - start) / step), 0);
     var idx = 0;
@@ -359,8 +359,7 @@ var Quintus = function Quintus(opts) {
 
     // Wrap the callback to save it and standardize the passed
     // in time. 
-    Q.gameLoopCallbackWrapper = function() {
-      var now = new Date().getTime();
+    Q.gameLoopCallbackWrapper = function(now) {
       Q._loopFrame++;
       Q.loop = window.requestAnimationFrame(Q.gameLoopCallbackWrapper);
       var dt = now - Q.lastGameLoopFrame;
@@ -796,7 +795,6 @@ var Quintus = function Quintus(opts) {
         this.stage.remove(this);
       }
       this.isDestroyed = true;
-      if(this.destroyed) { this.destroyed(); }
     }
   });
 
@@ -808,72 +806,6 @@ var Quintus = function Quintus(opts) {
     methods.componentName = "." + name;
     return (Q.components[name] = Q.Component.extend(name + "Component",methods));
   };
-
-
-  // Generic Game State object that can be used to
-  // track of the current state of the Game, for example when the player starts
-  // a new game you might want to keep track of their score and remaining lives:
-  //
-  //     Q.reset({ score: 0, lives: 2 });
-  //
-  // Then in your game might want to add to the score:
-  //     
-  //      Q.state.inc("score",50);
-  //
-  // In your hud, you can listen for change events on the state to update your 
-  // display:
-  //
-  //      Q.state.on("change.score",function() { .. update the score display .. });
-  //
-  Q.GameObject.extend("GameState",{
-    init: function(p) {
-      this.p = Q._extend({},p);
-      this.listeners = {};
-    },
-
-    // Resets the state to value p
-    reset: function(p) { this.init(p); this.trigger("reset"); },
-    
-    // Internal helper method to set an individual property
-    _triggerProperty: function(value,key) {
-      if(this.p[key] !== value) {
-        this.p[key] = value;
-        this.trigger("change." + key,value);
-      }
-    },
-
-    // Set one or more properties, trigger events on those
-    // properties changing
-    set: function(properties,value) {
-      if(Q._isObject(properties)) {
-        Q._each(properties,this._triggerProperty,this);
-      } else {
-        this._triggerProperty(value,properties);
-      }
-      this.trigger("change");
-    },
-
-    // Increment an individual property by amount
-    inc: function(property,amount) {
-      this.set(property,this.get(property) + amount);
-    },
-
-    // Increment an individual property by amount
-    dec: function(property,amount) {
-      this.set(property,this.get(property) - amount);
-    },
-
-    // Return an individual property
-    get: function(property) {
-      return this.p[property];
-    }
-  });
-
-  // The instance of the Q.stage property
-  Q.state = new Q.GameState();
-
-  // Reset the game state and unbind all state events
-  Q.reset = function() { Q.state.reset(); };
 
 
   // Canvas Methods
@@ -948,8 +880,6 @@ var Quintus = function Quintus(opts) {
         w = Math.min(window.innerWidth,maxWidth);
         h = Math.min(window.innerHeight,maxHeight);
       }
-    } else if(Q.touchDevice) {
-      window.scrollTo(0,1);
     }
 
     if((upsampleWidth && w <= upsampleWidth) ||
@@ -1053,32 +983,14 @@ var Quintus = function Quintus(opts) {
     ogg: 'Audio', wav: 'Audio', m4a: 'Audio', mp3: 'Audio'
   };
 
-
   // Determine the type of asset based on the lookup table above
   Q.assetType = function(asset) {
     /* Determine the lowercase extension of the file */
     var fileParts = asset.split("."),
         fileExt = fileParts[fileParts.length-1].toLowerCase();
 
-    // Use the web audio loader instead of the regular loader
-    // if it's supported.
-    var fileType =  Q.assetTypes[fileExt];
-    if(fileType === 'Audio' && Q.audio && Q.audio.type === "WebAudio") {
-      fileType = 'WebAudio';
-    }
-
     /* Lookup the asset in the assetTypes hash, or return other */
-    return fileType || 'Other';
-  };
-
-  // Either return an absolute URL, 
-  // or add a base to a relative URL
-  Q.assetUrl = function(base,url) {
-    if(/^https?:\/\//.test(url) || url[0] === "/") {
-      return url;
-    } else {
-      return base + url;
-    }
+    return Q.assetTypes[fileExt] || 'Other';
   };
 
   // Loader for Images, creates a new `Image` object and uses the 
@@ -1087,7 +999,7 @@ var Quintus = function Quintus(opts) {
     var img = new Image();
     img.onload = function() {  callback(key,img); };
     img.onerror = errorCallback;
-    img.src = Q.assetUrl(Q.options.imagePath,src);
+    img.src = Q.options.imagePath + src;
   };
 
 
@@ -1098,20 +1010,6 @@ var Quintus = function Quintus(opts) {
                        ogg: 'audio/ogg; codecs="vorbis"',
                        m4a: 'audio/m4a',
                        wav: 'audio/wav' };
-
-  Q._audioAssetExtension = function() {
-    if(Q._audioAssetPreferredExtension) { return Q._audioAssetPreferredExtension; }
-
-    var snd = new Audio();
-
-    /* Find a supported type */
-    return Q._audioAssetPreferredExtension = 
-      Q._detect(Q.options.audioSupported,
-         function(extension) {
-         return snd.canPlayType(Q.audioMimeTypes[extension]) ? 
-                                extension : null;
-      });
-  };
 
   // Loader for Audio assets. By default chops off the extension and 
   // will automatically determine which of the supported types is 
@@ -1125,10 +1023,18 @@ var Quintus = function Quintus(opts) {
       return;
     }
 
-    var baseName = Q._removeExtension(src),
-        extension = Q._audioAssetExtension(),
-        filename = null,
-        snd = new Audio();
+    var snd = new Audio(),
+        baseName = Q._removeExtension(src),
+        extension = null,
+        filename = null;
+
+    /* Find a supported type */
+    extension = 
+      Q._detect(Q.options.audioSupported,
+         function(extension) {
+         return snd.canPlayType(Q.audioMimeTypes[extension]) ? 
+                                extension : null;
+    });
 
     /* No supported audio = trigger ok callback anyway */
     if(!extension) {
@@ -1137,39 +1043,12 @@ var Quintus = function Quintus(opts) {
     }
 
     snd.addEventListener("error",errorCallback);
-
-    // Don't wait for canplaythrough on mobile
-    if(!Q.touchDevice) { 
-      snd.addEventListener('canplaythrough',function() { 
-        callback(key,snd); 
-      });
-    }
-    snd.src =  Q.assetUrl(Q.options.audioPath,baseName + "." + extension);
+    snd.addEventListener('canplaythrough',function() { 
+      callback(key,snd); 
+    });
+    snd.src = Q.options.audioPath + baseName + "." + extension;
     snd.load();
-
-    if(Q.touchDevice) {
-      callback(key,snd);
-    }
-  };
-
-  Q.loadAssetWebAudio = function(key,src,callback,errorCallback) {
-    var request = new XMLHttpRequest(),
-        baseName = Q._removeExtension(src),
-        extension = Q._audioAssetExtension();
-
-    request.open("GET", Q.assetUrl(Q.options.audioPath,baseName + "." + extension), true);
-    request.responseType = "arraybuffer";
-
-    // Our asynchronous callback
-    request.onload = function() {
-      var audioData = request.response;
-
-      Q.audioContext.decodeAudioData(request.response, function(buffer) {
-        callback(key,buffer);
-      }, errorCallback);
-    };
-    request.send();
-
+    return snd;
   };
 
   // Loader for other file types, just store the data

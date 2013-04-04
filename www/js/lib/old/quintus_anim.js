@@ -146,22 +146,26 @@ Quintus.Anim = function(Q) {
       if(Q._isObject(duration)) { options = duration; duration = 1; }
 
       this.entity = entity;
-      //this.p = (entity instanceof Q.Stage) ? entity.viewport : entity.p;
+      this.p = (entity instanceof Q.Stage) ? entity.viewport : entity.p;
       this.duration = duration || 1;
       this.time = 0;
       this.options = options || {};
       this.delay = this.options.delay || 0;
       this.easing = easing || this.options.easing || Q.Easing.Linear;
 
+
       this.startFrame = Q._loopFrame + 1;
-      this.properties = properties;
       this.start = {};
       this.diff = {};
+      for(var property in properties) {
+        this.start[property] = this.p[property];
+        if(!Q._isUndefined(this.start[property])) {
+          this.diff[property] = properties[property] - this.start[property];
+        }
+      }
     },
 
     step: function(dt) {
-      var property;
-
       if(this.startFrame > Q._loopFrame) { return true; }
       if(this.delay >= dt) {
         this.delay -= dt;
@@ -173,23 +177,12 @@ Quintus.Anim = function(Q) {
         this.delay = 0;
       }
 
-      if(this.time === 0) {
-        // first time running? Initialize the properties to chaining correctly.
-        var entity = this.entity, properties = this.properties;
-        this.p = (entity instanceof Q.Stage) ? entity.viewport : entity.p;
-        for(property in properties) {
-          this.start[property] = this.p[property];
-          if(!Q._isUndefined(this.start[property])) {
-            this.diff[property] = properties[property] - this.start[property];
-          }
-        }
-      }
       this.time += dt;
 
       var progress = Math.min(1,this.time / this.duration),
           location = this.easing(progress);
 
-      for(property in this.start) {
+      for(var property in this.start) {
         if(!Q._isUndefined(this.p[property])) {
           this.p[property] = this.start[property] + this.diff[property] * location;
         }
@@ -234,7 +227,7 @@ Quintus.Anim = function(Q) {
         if(Q._isObject(easing)) { options = easing; easing = Q.Easing.Linear; }
         // Chain an animation to the end
         var tweenCnt = this.tween._tweens.length;
-        if(tweenCnt > 0) {
+        if(this.tweenCnt > 0) {
           var lastTween = this.tween._tweens[tweenCnt - 1];
           options = options || {};
           options['delay'] = lastTween.duration - lastTween.time + lastTween.delay;
@@ -251,10 +244,9 @@ Quintus.Anim = function(Q) {
     },
 
     step: function(dt) {
-      for(var i=0; i < this._tweens.length; i++) {
+      for(var i=this._tweens.length-1;i>=0;i--) {
         if(!this._tweens[i].step(dt)) {
           this._tweens.splice(i,1);
-          i--;
         }
       }
     }

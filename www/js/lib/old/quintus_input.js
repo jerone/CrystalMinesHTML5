@@ -26,30 +26,6 @@ Quintus.Input = function(Q) {
 
   var hasTouch =  !!('ontouchstart' in window);
 
-
-  // Convert a canvas point to a stage point, x dimension
-  Q.canvasToStageX = function(x,stage) {
-    x = x / Q.cssWidth * Q.width;
-    if(stage.viewport) {
-      x /= stage.viewport.scale;
-      x += stage.viewport.x;
-    }
-
-    return x;
-  };
-
-  Q.canvasToStageY = function(y,stage) {
-      y = y / Q.cssWidth * Q.width;
-      if(stage.viewport) {
-        y /= stage.viewport.scale;
-        y += stage.viewport.y;
-      }
-
-      return y;
-  };
-
-
-
   Q.InputSystem = Q.Evented.extend({
     keys: {},
     keypad: {},
@@ -98,16 +74,6 @@ Quintus.Input = function(Q) {
       this.keyboardEnabled = true;
     },
 
-    _containerOffset: function() {
-      Q.input.offsetX = 0;
-      Q.input.offsetY = 0;
-      var el = Q.el;
-      do {
-        Q.input.offsetX += el.offsetLeft;
-        Q.input.offsetY += el.offsetTop;
-      } while(el = el.offsetParent);
-    },
-
     touchLocation: function(touch) {
       var el = Q.el, 
         posX = touch.offsetX,
@@ -120,14 +86,12 @@ Quintus.Input = function(Q) {
       }
 
       if(Q._isUndefined(posX) || Q._isUndefined(posY)) {
-        if(Q.input.offsetX === void 0) { Q.input._containerOffset(); }
-        posX = touch.pageX - Q.input.offsetX;
-        posY = touch.pageY - Q.input.offsetY;
+        posX = touch.clientX;
+        posY = touch.clientY;
       }
 
       touchX = Q.width * posX / Q.cssWidth;
       touchY = Q.height * posY / Q.cssHeight;
-
 
       return { x: touchX, y: touchY };
     },
@@ -168,10 +132,8 @@ Quintus.Input = function(Q) {
           Q.inputs[actionName] = false;
         }
 
-        var touches = event.touches ? event.touches : [ event ];
-
-        for(i=0,len=touches.length;i<len;i++) {
-          tch = touches[i];
+        for(i=0,len=event.touches.length;i<len;i++) {
+          tch = event.touches[i];
           key = getKey(tch);
 
           if(key) {
@@ -239,10 +201,11 @@ Quintus.Input = function(Q) {
         triggers: []
       });
 
-      this.joypadStart = function(evt) {
+      this.joypadStart = function(e) {
         if(joypad.joypadTouch === null) {
-          var touch = evt.changedTouches[0],
-              loc = Q.input.touchLocation(touch);
+          var evt = e.originalEvent,
+          touch = evt.changedTouches[0],
+          loc = Q.input.touchLocation(touch);
 
           if(loc.x < joypad.zone) {
             joypad.joypadTouch = touch.identifier;
@@ -334,70 +297,13 @@ Quintus.Input = function(Q) {
           e.preventDefault();
       };
 
+
       Q.el.addEventListener("touchstart",this.joypadStart);
       Q.el.addEventListener("touchmove",this.joypadMove);
       Q.el.addEventListener("touchend",this.joypadEnd);
       Q.el.addEventListener("touchcancel",this.joypadEnd);
 
       this.joypadEnabled = true;
-    },
-
-    mouseControls: function(options) {
-      options = options || {};
-
-      var stageNum = options.stageNum || 0;
-      var mouseInputX = options.mouseX || "mouseX";
-      var mouseInputY = options.mouseY || "mouseY";
-
-      var mouseMoveObj = {};
-
-      Q.el.style.cursor = 'none';
-
-      Q.inputs[mouseInputX] = 0;
-      Q.inputs[mouseInputY] = 0;
-
-      Q._mouseMove = function(e) {
-        e.preventDefault();
-        var touch = e.touches ? e.touches[0] : e;
-        var el = Q.el, 
-            posX = touch.offsetX,
-            posY = touch.offsetY,
-            eX, eY,
-            stage = Q.stage(stageNum);
-
-        if(Q._isUndefined(posX) || Q._isUndefined(posY)) {
-          posX = touch.layerX;
-          posY = touch.layerY;
-        }
-
-        if(Q._isUndefined(posX) || Q._isUndefined(posY)) {
-          if(Q.input.offsetX === void 0) { Q.input._containerOffset(); }
-          posX = touch.pageX - Q.input.offsetX;
-          posY = touch.pageY - Q.input.offsetY;
-        }
-
-        if(stage) {
-          mouseMoveObj.x= Q.canvasToStageX(posX,stage);
-          mouseMoveObj.y= Q.canvasToStageY(posY,stage);
-
-          Q.inputs[mouseInputX] = mouseMoveObj.x;
-          Q.inputs[mouseInputY] = mouseMoveObj.y;
-
-          Q.input.trigger('mouseMove',mouseMoveObj);
-        }
-      };
-
-      Q.el.addEventListener('mousemove',Q._mouseMove,true);
-      Q.el.addEventListener('touchstart',Q._mouseMove,true);
-      Q.el.addEventListener('touchmove',Q._mouseMove,true);
-    },
-
-    disableMouseControls: function() {
-      if(Q._mouseMove) {
-        Q.el.removeEventListener("mousemove",Q._mouseMove);
-        Q.el.style.cursor = 'inherit';
-        Q._mouseMove = null;
-      }
     },
 
     drawButtons: function() {

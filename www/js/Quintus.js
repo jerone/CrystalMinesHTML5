@@ -18,6 +18,11 @@ define(['config',
 					.controls().touch();
 
 			Q.debug = true;
+			
+			// Override this method to show background sprite;
+			Q.TileLayer.prototype.drawableTile = function (tileNum) {
+				return tileNum >= 0;
+			};
 
 			// no gravity;
 			Q.gravityX = 0;

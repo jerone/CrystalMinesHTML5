@@ -52,26 +52,10 @@ Quintus.Touch = function(Q) {
       var canvasPosX = touch.offsetX,
           canvasPosY = touch.offsetY;
          
-
       if(Q._isUndefined(canvasPosX) || Q._isUndefined(canvasPosY)) {
         canvasPosX = touch.layerX;
         canvasPosY = touch.layerY;
       }
-
-      if(Q._isUndefined(canvasPosX) || Q._isUndefined(canvasPosY)) {
-        if(Q.touch.offsetX === void 0) {
-          Q.touch.offsetX = 0;
-          Q.touch.offsetY = 0;
-          var el = Q.el;
-          do {
-            Q.touch.offsetX += el.offsetLeft;
-            Q.touch.offsetY += el.offsetTop;
-          } while(el = el.offsetParent);
-        }
-        canvasPosX = touch.pageX - Q.touch.offsetX;
-        canvasPosY = touch.pageY - Q.touch.offsetY;
-      }
-
 
       this.touchPos.p.ox = this.touchPos.p.px = canvasPosX / Q.cssWidth * Q.width;
       this.touchPos.p.oy = this.touchPos.p.py = canvasPosY / Q.cssHeight * Q.height;
@@ -85,7 +69,6 @@ Quintus.Touch = function(Q) {
 
       this.touchPos.p.x = this.touchPos.p.px;
       this.touchPos.p.y = this.touchPos.p.py;
-
       this.touchPos.obj = null;
       return this.touchPos;
     },

@@ -6,7 +6,7 @@ requirejs.config({
 
 
 window.addEventListener('load', function() {
-	require(['config', 'Quintus', 'player', 'exit', 'enemy', 'level-1', 'endGame'], function (config, Q) {
+	require(['config', 'lib/quintus', 'Quintus', 'player', 'exit', 'enemy', 'level-1', 'endGame'], function (config, quintusLib, Q) {
 
 		console.log("Game starting...", !!Q);
 		window.Q = Q;

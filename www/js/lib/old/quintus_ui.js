@@ -29,15 +29,15 @@ Quintus.UI = function(Q) {
 
   Q.UI.Container = Q.Sprite.extend("UI.Container", {
     init: function(p,defaults) {
-      var adjustedP = Q._clone(p||{}),
+      var adjustedP = Q._clone(p),
           match;
 
-      if(p && Q._isString(p.w) && (match = p.w.match(/^[0-9]+%$/))) {
+      if(Q._isString(p.w) && (match = p.w.match(/[0-9]%/))) {
         adjustedP.w = parseInt(p.w,10) * Q.width / 100;         
         adjustedP.x = Q.width/2 - adjustedP.w/2;
       }
 
-      if(p && Q._isString(p.h) && (match = p.h.match(/^[0-9]+%$/))) {
+      if(Q._isString(p.h) && (match = p.h.match(/[0-9]%/))) {
         adjustedP.h = parseInt(p.h,10) * Q.height / 100;         
         adjustedP.y = Q.height /2 - adjustedP.h/2;
       }
@@ -45,8 +45,7 @@ Quintus.UI = function(Q) {
       this._super(adjustedP,{
         opacity: 1,
         hidden: false, // Set to true to not show the container
-        fill:   null, // Set to color to add background
-        highlight:   null, // Set to color to for button
+        fill:   null, // Set to color to add backbround
         radius: 5, // Border radius
         stroke: "#000", 
         border: false, // Set to a width to show a border
@@ -138,11 +137,7 @@ Quintus.UI = function(Q) {
       if(!this.p.border && !this.p.fill) { return; }
 
       ctx.globalAlpha = this.p.opacity;
-      if(this.p.frame === 1 && this.p.highlight) {
-        ctx.fillStyle = this.p.highlight;
-      } else {
-        ctx.fillStyle = this.p.fill;
-      }
+      ctx.fillStyle = this.p.fill;
       ctx.strokeStyle = this.p.stroke;
 
       if(this.p.radius > 0) { 
@@ -162,29 +157,22 @@ Quintus.UI = function(Q) {
         size: 24
       });
 
-      //this.el = document.createElement("canvas");
-      //this.ctx = this.el.getContext("2d");
+      this.el = document.createElement("canvas");
+      this.ctx = this.el.getContext("2d");
 
       if(this.p.label) {
         this.calcSize();
       }
 
-      //this.prerender();
+      this.prerender();
     },
 
     calcSize: function() {
-      this.setFont(Q.ctx);
+      this.setFont(this.ctx);
       this.splitLabel = this.p.label.split("\n");
-      var maxLabel = "";
-      for(var i = 0;i < this.splitLabel.length;i++) {
-        if(this.splitLabel[i].length > maxLabel.length) {
-          maxLabel = this.splitLabel[i];
-        }
-      }
-
-      var metrics = Q.ctx.measureText(maxLabel);
+      var metrics = this.ctx.measureText(this.p.label);
       this.p.h = (this.p.size || 24) * this.splitLabel.length * 1.2;
-      this.p.w = metrics.width;
+      this.p.w = metrics.width + 20;
       this.p.cx = this.p.w / 2;
       this.p.cy = this.p.h / 2;
     },
@@ -205,22 +193,19 @@ Quintus.UI = function(Q) {
     },
 
     draw: function(ctx) {
-       //this.prerender();
+      // this.prerender();
+      this._super(ctx);
+
       if(this.p.opacity === 0) { return; }
 
-      if(this.p.oldLabel !== this.p.label) { this.calcSize(); }
-
+      ctx.save();
       this.setFont(ctx);
       if(this.p.opacity !== void 0) { ctx.globalAlpha = this.p.opacity; }
       for(var i =0;i<this.splitLabel.length;i++) {
-        if(this.p.align === 'center') { 
-          ctx.fillText(this.splitLabel[i],0,-this.p.cy + i * this.p.size * 1.2);
-        } else if(this.p.align === 'right') {
-          ctx.fillText(this.splitLabel[i],this.p.cx,-this.p.cy + i * this.p.size * 1.2);
-        } else { 
-          ctx.fillText(this.splitLabel[i],-this.p.cx,-this.p.cy +i * this.p.size * 1.2);
-        }
+        ctx.fillText(this.splitLabel[i],-this.p.cx,-this.p.cy + i * this.p.size * 1.2);
+
       }
+      ctx.restore();
     },
 
     asset: function() {
@@ -257,19 +242,19 @@ Quintus.UI = function(Q) {
         this.setFont(Q.ctx);
         var metrics = Q.ctx.measureText(this.p.label);
         Q.ctx.restore();
-        if(!this.p.h) {  this.p.h = 24 + 20; }
-        if(!this.p.w) { this.p.w = metrics.width + 20; }
+        this.p.h = 24 + 20;
+        this.p.w = metrics.width + 20;
+        this.p.cx = this.p.w / 2;
+        this.p.cy = this.p.h / 2;
       }
 
-      if(isNaN(this.p.cx)) { this.p.cx = this.p.w / 2; }
-      if(isNaN(this.p.cy)) { this.p.cy = this.p.h / 2; }
       this.callback = callback;
       this.on('touch',this,"highlight");
       this.on('touchEnd',this,"push");
     },
 
     highlight: function() {
-      if(!this.sheet() || this.sheet().frames > 1) {
+      if(this.sheet() && this.sheet().frames > 1) {
         this.p.frame = 1;
       }
     },
@@ -284,7 +269,7 @@ Quintus.UI = function(Q) {
       this._super(ctx);
 
       if(this.p.asset || this.p.sheet) {
-        Q.Sprite.prototype.draw.call(this,ctx);
+        Q.Sprite.prototype.call('draw',ctx);
       }
 
       if(this.p.label) {
@@ -297,7 +282,7 @@ Quintus.UI = function(Q) {
 
     setFont: function(ctx) {
       ctx.textBaseline = "middle";
-      ctx.font = this.p.font || "400 24px arial";
+      ctx.font= this.p.font || "800 24px arial";
       ctx.fillStyle = this.p.fontColor || "black";
       ctx.textAlign = "center";
     }

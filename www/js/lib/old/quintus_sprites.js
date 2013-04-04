@@ -73,13 +73,12 @@ Quintus.Sprites = function(Q) {
   Q.SPRITE_ACTIVE   = 4;
   Q.SPRITE_FRIENDLY = 8;
   Q.SPRITE_ENEMY    = 16;
-  Q.SPRITE_POWERUP  = 32;
-  Q.SPRITE_UI       = 64;
+  Q.SPRITE_UI       = 32;
   Q.SPRITE_ALL   = 0xFFFF;
 
 
-  Q._generatePoints = function(obj,force) {
-    if(obj.p.points && !force) { return; }
+  Q._generatePoints = function(obj) {
+    if(obj.p.points) { return; }
     var p = obj.p,
         halfW = p.w/2,
         halfH = p.h/2;
@@ -176,7 +175,17 @@ Quintus.Sprites = function(Q) {
 
       Q._extend(this.p,props); 
 
-      this.size();
+      if((!this.p.w || !this.p.h)) {
+        if(this.asset()) {
+          this.p.w = this.p.w || this.asset().width;
+          this.p.h = this.p.h || this.asset().height;
+        } else if(this.sheet()) {
+          this.p.w = this.p.w || this.sheet().tilew;
+          this.p.h = this.p.h || this.sheet().tileh;
+        }
+      }
+      this.p.cx = this.p.cx === void 0 ? (this.p.w / 2) : this.p.cx;
+      this.p.cy = this.p.cy === void 0 ? (this.p.h / 2) : this.p.cy;
       this.p.id = this.p.id || Q._uniqueId();
 
       this.c = { points: [] };
@@ -184,43 +193,12 @@ Quintus.Sprites = function(Q) {
       this.refreshMatrix();
     },
 
-    // Resets the width, height and center based on the
-    // asset or sprite sheet
-    size: function(force) {
-      if(force || (!this.p.w || !this.p.h)) { 
-        if(this.asset()) {
-          this.p.w = this.asset().width;
-          this.p.h = this.asset().height;
-        } else if(this.sheet()) {
-          this.p.w = this.sheet().tilew;
-          this.p.h = this.sheet().tileh;
-        }
-      } 
-
-      this.p.cx = (force || this.p.cx === void 0) ? (this.p.w / 2) : this.p.cx;
-      this.p.cy = (force || this.p.cy === void 0) ? (this.p.h / 2) : this.p.cy;
+    asset: function() {
+      return Q.asset(this.p.asset);
     },
 
-    // Get or set the asset associate with this sprite
-    asset: function(name,resize) {
-      if(!name) { return Q.asset(this.p.asset); }
-
-      this.p.asset = name;
-      if(resize) {
-        this.size(true);
-        Q._generatePoints(this,true);
-      }
-    },
-
-    // Get or set the sheet associate with this sprite
-    sheet: function(name,resize) {
-      if(!name) { return Q.sheet(this.p.sheet); }
-
-      this.p.sheet = name;
-      if(resize) { 
-        this.size(true);
-        Q._generatePoints(this,true);
-      }
+    sheet: function() {
+      return Q.sheet(this.p.sheet);
     },
 
     hide: function() {
@@ -234,16 +212,6 @@ Quintus.Sprites = function(Q) {
     set: function(properties) {
       Q._extend(this.p,properties);
       return this;
-    },
-
-    _sortChild: function(a,b) {
-      return ((a.p && a.p.z) || -1) - ((b.p && b.p.z) || -1);
-    },
-
-    _flipArgs: {
-      "x":  [ -1,  1],
-      "y":  [  1, -1],
-      "xy": [ -1, -1]
     },
 
     render: function(ctx) {
@@ -262,8 +230,6 @@ Quintus.Sprites = function(Q) {
 
         this.matrix.setContextTransform(ctx);
 
-        if(this.p.flip) { ctx.scale.apply(ctx,this._flipArgs[this.p.flip]) };
-
         this.trigger('beforedraw',ctx);
         this.draw(ctx);
         this.trigger('draw',ctx);
@@ -272,23 +238,11 @@ Quintus.Sprites = function(Q) {
       
       // Children set up their own complete matrix
       // from the base stage matrix
-      if(this.p.sort) { this.children.sort(this._sortChild); }
       Q._invoke(this.children,"render",ctx);
       
       this.trigger('postdraw',ctx);
 
       if(Q.debug) { this.debugRender(ctx); }
-
-    },
-
-    center: function() {
-      if(this.container) {
-        this.p.x = this.container.p.w / 2;
-        this.p.y = this.container.p.h / 2;
-      } else {
-        this.p.x = Q.width / 2;
-        this.p.y = Q.height / 2;
-      }
 
     },
 
@@ -339,16 +293,11 @@ Quintus.Sprites = function(Q) {
       }
     },
 
-    update: function(dt) {
+    step: function(dt) {
       this.trigger('prestep',dt);
-      if(this.step) { this.step(dt); }
       this.trigger('step',dt);
       this.refreshMatrix();
-
-      // Ugly coupling to stage - workaround?
-      if(this.stage && this.children.length > 0) {
-        this.stage.updateSprites(this.children,dt,true);
-      }
+      Q._invoke(this.children,"step",dt);
     },
 
     refreshMatrix: function() {
@@ -383,6 +332,8 @@ Quintus.Sprites = function(Q) {
 
      p.x += p.vx * dt;
      p.y += p.vy * dt;
+
+     this._super(dt);
    }
  });
 
