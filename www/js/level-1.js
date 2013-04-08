@@ -40,12 +40,12 @@ define(['config', 'Quintus'], function (config, Q) {
 			x: placeSprite(28), 
 			y: placeSprite(7) 
 		}));
-
+		/*
 		// add exit;
 		stage.insert(new Q.Exit({ 
 			x: placeSprite(6), 
 			y: placeSprite(4)
-		}));
+		}));*/
 	});
 
 });

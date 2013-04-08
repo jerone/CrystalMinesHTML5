@@ -115,11 +115,14 @@ define('Quintus',
 				goBottom: function (col) {
 					this.entity.p.vy = col.impact;
 				},
-				collision: function () { console.log("collision", this, arguments); },
+				collision: function () {
+					//console.log("collision", this, arguments);
+				},
 				step: function () {
-					console.log("step", this, arguments); this.entity.stage.collide(this.entity);
+					//console.log("step", this, arguments);
+					this.entity.stage.collide(this.entity);
 				}
-		});
+			});
 
 
 			Q.component('WalkAround', {
@@ -139,7 +142,7 @@ define('Quintus',
 					var entity = this.entity,
 						p = entity.p;
 
-					console.log(col);
+					console.dir(col.collided);
 
 					//Q.pauseGame();
 
@@ -153,24 +156,27 @@ define('Quintus',
 					p.x -= col.separate[0];
 					p.y -= col.separate[1];
 
-////////					console.log("test", col.normalX, col.normalY);
+					////////					console.log("test", col.normalX, col.normalY);
 					//console.log("test", impactX, impactY);
-///////////					console.log("test", p.vx, p.vy);
+					///////////					console.log("test", p.vx, p.vy);
 					//debugger;
 
 					if (col.normalX > 0) { // bump left;
-						debugger;
+						//debugger;
 						//if(p.vx < 0) { p.vx = 0; }
 						//if(p.vy > 0) { p.vy = 0; }
 						//p.vx = 0;
 						//p.direction = p.vy > 0 ? 0 : 2;
 						//p.bump = 3;
 						//p.direction = 0;
+
 						p.vy = -Math.abs(p.vy);
 						p.vx = -Math.abs(p.vx);
-					}
-					 if (col.normalY > 0) { // bump top;
-						debugger;
+						//p.vy = p.vy * (col.normalY > 0 ? -1 : 1);
+						//p.vx = p.vx * (col.normalX > 0 ? -1 : 1);
+					}										 
+					if (col.normalY > 0) { // bump top;
+						//	debugger;
 						//if(p.vy < 0) { p.vy = 0; }
 						//if(p.vx > 0) { p.vx = 0; }
 						//p.vy = 0;
@@ -180,8 +186,8 @@ define('Quintus',
 						p.vy = -Math.abs(p.vy);
 						p.vx = Math.abs(p.vx);
 					}
-					 if (col.normalX < 0) { // bump right;
-						debugger;
+					if (col.normalX < 0) { // bump right;
+						//	debugger;
 						//if(p.vx > 0) { p.vx = 0; }
 						//if(p.vy > 0) { p.vy = 0; }
 						//p.vx = 0;
@@ -191,8 +197,8 @@ define('Quintus',
 						p.vy = Math.abs(p.vy);
 						p.vx = Math.abs(p.vx);
 					}
-					 if (col.normalY < 0) { // bump bottom;
-						//debugger;
+					if (col.normalY < 0) { // bump bottom;
+						//	debugger;
 						//if(p.vy > 0) { p.vy = 0; }
 						//if(p.vx > 0) { p.vx = 0; }
 						//p.vy = 0;
@@ -211,7 +217,7 @@ define('Quintus',
 					// debugger;
 
 					//p.hitted = false;
-//					console.log(p.bump, p.direction, p.vx, p.vy);
+					//					console.log(p.bump, p.direction, p.vx, p.vy);
 
 					//if(p.hitted===false){
 					/*if(p.bump==0){
@@ -231,7 +237,7 @@ define('Quintus',
 
 					p.x += p.vx * dt;
 					p.y += p.vy * dt;
-					//this.entity.stage.collide(this.entity);
+					this.entity.stage.collide(this.entity);
 				}
 			});
 

@@ -1,5 +1,5 @@
 define(['Quintus', 'level-1'], function (Q) {
-
+	/*
 	Q.scene('endGame', function (stage) {
 		var box = stage.insert(new Q.UI.Container({
 			x: Q.width / 2,
@@ -27,5 +27,5 @@ define(['Quintus', 'level-1'], function (Q) {
 
 		box.fit(20);
 	});
-
+	*/
 });
