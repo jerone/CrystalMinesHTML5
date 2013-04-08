@@ -13,7 +13,16 @@
 			margin: 0px;
 		}
 	</style>
+	<script>
+		var pauze = false;
+		function test1() {
+		    console.log(pauze);
+		    pauze ? Q.unpauseGame() : Q.pauseGame();
+		    pauze = !pauze;
+		}
+	</script>
 </head>
 <body>
+	<input type="button" value="test" id="test1" onclick="test1()" />
 </body>
 </html>
