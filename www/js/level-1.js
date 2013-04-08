@@ -26,7 +26,7 @@ define(['config', 'Quintus'], function (config, Q) {
 
 		// add player;
 		var player = stage.insert(new Q.Player({ 
-			x: placeSprite(19), 
+			x: placeSprite(20), 
 			y: placeSprite(7)
 		}));
 		//stage.add("viewport").follow(player);
@@ -37,7 +37,7 @@ define(['config', 'Quintus'], function (config, Q) {
 			y: placeSprite(3) 
 		}));*/
 		stage.insert(new Q.Enemy({ 
-			x: placeSprite(28), 
+			x: placeSprite(18), 
 			y: placeSprite(7) 
 		}));
 		/*

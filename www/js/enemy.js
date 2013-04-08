@@ -4,8 +4,8 @@ define(['config', 'Quintus'], function (config, Q) {
 		init: function (p) {
 			this._super(p, { 
 				sheet: 'enemy', 
-				vx: 80, 
-				vy: 80, 
+				vx: 40, 
+				vy: 40, 
 				scale: config.scale 
 			});
 			

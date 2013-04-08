@@ -1,14 +1,14 @@
-define('Quintus',
-		['config',
-		'lib/quintus',
-		'lib/quintus_2d',
-		//'lib/quintus_anim',
-		//'lib/quintus_audio',
-		'lib/quintus_input',
-		'lib/quintus_scenes',
-		'lib/quintus_sprites',
-		'lib/quintus_touch',
-		'lib/quintus_ui'], function (config) {
+define("Quintus",
+		["config",
+		"lib/quintus",
+		"lib/quintus_2d",
+		//"lib/quintus_anim",
+		//"lib/quintus_audio",
+		"lib/quintus_input",
+		"lib/quintus_scenes",
+		"lib/quintus_sprites",
+		"lib/quintus_touch",
+		"lib/quintus_ui"], function (config) {
 
 			var Q = Quintus()
 					.include("Sprites, Scenes, Input, 2D, Touch, UI")
@@ -17,7 +17,7 @@ define('Quintus',
 
 			Q.debug = true;
 
-			Q.component('2dAround', {
+			Q.component("2dAround", {
 				added: function () {
 					var entity = this.entity;
 					Q._defaults(entity.p, {
@@ -28,8 +28,8 @@ define('Quintus',
 						gravity: 1,
 						collisionMask: Q.SPRITE_DEFAULT
 					});
-					entity.on('step', this, "step");
-					entity.on('hit', this, 'collision');
+					entity.on("step", this, "step");
+					entity.on("hit", this, "collision");
 				},
 
 				collision: function (col, last) {
@@ -75,7 +75,7 @@ define('Quintus',
 				step: function (dt) {
 					var p = this.entity.p,
 						dtStep = dt;
-					// TODO: check the entity's magnitude of vx and vy,
+					// TODO: check the entity"s magnitude of vx and vy,
 					// reduce the max dtStep if necessary to prevent 
 					// skipping through objects.
 					while (dtStep > 0) {
@@ -93,14 +93,14 @@ define('Quintus',
 			});
 
 			// custom 2d component;
-			Q.component('aiRound', {
+			Q.component("aiRound", {
 				added: function () {
 					this.entity.on("bump.right", this, "goBottom");
 					this.entity.on("bump.bottom", this, "goLeft");
 					this.entity.on("bump.left", this, "goTop");
 					this.entity.on("bump.top", this, "goRight");
-					this.entity.on('hit', this, 'collision');
-					this.entity.on('step', this, "step");
+					this.entity.on("hit", this, "collision");
+					this.entity.on("step", this, "step");
 				},
 
 				goLeft: function (col) {
@@ -125,7 +125,7 @@ define('Quintus',
 			});
 
 
-			Q.component('WalkAround', {
+			Q.component("WalkAround", {
 				added: function () {
 					var entity = this.entity;
 					Q._defaults(entity.p, {
@@ -134,15 +134,15 @@ define('Quintus',
 						direction: 2,
 						collisionMask: Q.SPRITE_DEFAULT
 					});
-					entity.on('step', this, "step");
-					entity.on('hit', this, 'collision');
+					entity.on("step", this, "step");
+					entity.on("hit", this, "collision");
 				},
 
 				collision: function (col, last) {
 					var entity = this.entity,
 						p = entity.p;
 
-					console.dir(col.collided);
+					console.log(col.normalX, col.normalY);
 
 					//Q.pauseGame();
 
@@ -174,7 +174,7 @@ define('Quintus',
 						p.vx = -Math.abs(p.vx);
 						//p.vy = p.vy * (col.normalY > 0 ? -1 : 1);
 						//p.vx = p.vx * (col.normalX > 0 ? -1 : 1);
-					}										 
+					}
 					if (col.normalY > 0) { // bump top;
 						//	debugger;
 						//if(p.vy < 0) { p.vy = 0; }
@@ -211,7 +211,7 @@ define('Quintus',
 				},
 
 				step: function (dt) {
-					var p = this.entity.p;
+					//var p = this.entity.p;
 
 					//console.log("test", p.x, p.y, p.vx, p.vy);
 					// debugger;
@@ -234,6 +234,56 @@ define('Quintus',
 					}*/
 					// debugger;
 					//}
+
+
+					var obj = this.entity,
+						colOjb = this.entity.stage;
+
+
+					var p = this.entity.p,
+						tileStartX = Math.floor((obj.p.x - obj.p.cx - p.x) / p.tileW),
+						tileStartY = Math.floor((obj.p.y - obj.p.cy - p.y) / p.tileH),
+						tileEndX = Math.ceil((obj.p.x - obj.p.cx + obj.p.w - p.x) / p.tileW),
+						tileEndY = Math.ceil((obj.p.y - obj.p.cy + obj.p.h - p.y) / p.tileH),
+						colObj = this.collisionObject,
+						normal = this.collisionNormal,
+						col;
+
+					normal.collided = false;
+
+					for (var tileY = tileStartY; tileY <= tileEndY; tileY++) {
+						for (var tileX = tileStartX; tileX <= tileEndX; tileX++) {
+							if (this.tilePresent(tileX, tileY)) {
+								colObj.p.x = tileX * p.tileW + p.x + p.tileW / 2;
+								colObj.p.y = tileY * p.tileH + p.y + p.tileH / 2;
+
+								col = Q.collision(obj, colObj);
+								if (col && col.magnitude > 0 &&
+								   (!normal.collided || normal.magnitude < col.magnitude)) {
+									normal.collided = true;
+									normal.separate[0] = col.separate[0];
+									normal.separate[1] = col.separate[1];
+									normal.magnitude = col.magnitude;
+									normal.distance = col.distance;
+									normal.normalX = col.normalX;
+									normal.normalY = col.normalY;
+									normal.tileX = tileX;
+									normal.tileY = tileY;
+									normal.tile = this.getTile(tileX, tileY);
+								}
+							}
+						}
+					}
+
+					//return normal.collided ? normal : false;
+
+					console.log(normal);
+
+
+
+
+
+
 
 					p.x += p.vx * dt;
 					p.y += p.vy * dt;
