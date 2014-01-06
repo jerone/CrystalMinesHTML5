@@ -168,5 +168,5 @@ pip-log.txt
 
 
 
-/node_modules
-/iisnode
+node_modules/
+iisnode/
