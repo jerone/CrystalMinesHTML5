@@ -1,0 +1,24 @@
+{
+  "name": "CrystalMinesHTML5",
+  "version": "0.0.0",
+  "description": "Crystal Mines II is puzzle video game originaly build for the Lynx.<br/>\r This project tries to port the game to web, with use of HTML5, JavaScript and CSS3.",
+  "main": "server.js",
+  "dependencies": {
+    "connect": "~2.12.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jerone/CrystalMinesHTML5.git"
+  },
+  "author": "jerone",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jerone/CrystalMinesHTML5/issues"
+  },
+  "homepage": "https://github.com/jerone/CrystalMinesHTML5"
+}
