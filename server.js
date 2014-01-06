@@ -5,8 +5,8 @@ var connect = require('connect'),
 	url = require('url'),
 	sys = require('sys');
 	
-var HOST = 'localhost',//'172.0.0.223',
-	PORT = 1337;
+var HOST = process.env.CONNECT_STRING,//'172.0.0.223',
+	PORT = process.env.PORT || 1337;
 
 // http://roguejs.com/2011-11-30/console-colors-in-node-js/
 var colors = {

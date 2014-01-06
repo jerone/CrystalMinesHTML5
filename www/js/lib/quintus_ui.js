@@ -42,7 +42,7 @@ Quintus.UI = function(Q) {
         adjustedP.y = Q.height /2 - adjustedP.h/2;
       }
 
-      this._super(adjustedP,{
+      this._super(Q._defaults(adjustedP,defaults),{
         opacity: 1,
         hidden: false, // Set to true to not show the container
         fill:   null, // Set to color to add background
@@ -52,6 +52,8 @@ Quintus.UI = function(Q) {
         border: false, // Set to a width to show a border
         shadow: false, // Set to true or a shadow offest
         shadowColor: false, // Set to a rgba value for the shadow
+        outlineWidth: false, // Set to a width to outline text
+        outlineColor: "#000",
         type: Q.SPRITE_NONE
       });
 
@@ -213,11 +215,20 @@ Quintus.UI = function(Q) {
       this.setFont(ctx);
       if(this.p.opacity !== void 0) { ctx.globalAlpha = this.p.opacity; }
       for(var i =0;i<this.splitLabel.length;i++) {
-        if(this.p.align === 'center') { 
+        if(this.p.align === 'center') {      
+          if(this.p.outlineWidth) {
+            ctx.strokeText(this.splitLabel[i],0,-this.p.cy + i * this.p.size * 1.2);
+          }
           ctx.fillText(this.splitLabel[i],0,-this.p.cy + i * this.p.size * 1.2);
         } else if(this.p.align === 'right') {
+          if(this.p.outlineWidth) {
+            ctx.strokeText(this.splitLabel[i],this.p.cx,-this.p.cy + i * this.p.size * 1.2);
+          }
           ctx.fillText(this.splitLabel[i],this.p.cx,-this.p.cy + i * this.p.size * 1.2);
         } else { 
+          if(this.p.outlineWidth) {
+            ctx.strokeText(this.splitLabel[i],-this.p.cx,-this.p.cy +i * this.p.size * 1.2);
+          }
           ctx.fillText(this.splitLabel[i],-this.p.cx,-this.p.cy +i * this.p.size * 1.2);
         }
       }
@@ -232,6 +243,8 @@ Quintus.UI = function(Q) {
       ctx.font= this.font();
       ctx.fillStyle = this.p.color || "black";
       ctx.textAlign = this.p.align || "left";
+      ctx.strokeStyle = this.p.outlineColor || "black";
+      ctx.lineWidth = this.p.outlineWidth || 0;
     },
 
     font: function() {

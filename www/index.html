@@ -1,28 +1,34 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
-	<title>Crystal Mines II</title>
-	<script type="text/javascript" src="js/lib/require.js"></script>
-	<script type="text/javascript" src="js/index.js"></script>
-	<style>
-		*
-		{
-			padding: 0px;
-			margin: 0px;
-		}
-	</style>
-	<script>
-		var pauze = false;
-		function test1() {
-		    console.log(pauze);
-		    pauze ? Q.unpauseGame() : Q.pauseGame();
-		    pauze = !pauze;
-		}
-	</script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=0, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>Crystal Mines II</title>
+    <script type="text/javascript" src="js/lib/quintus.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_sprites.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_scenes.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_input.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_anim.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_2d.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_touch.js"></script>
+    <script type="text/javascript" src="js/lib/quintus_ui.js"></script>
+    <script type="text/javascript" src="js/Quintus.js"></script>
+    <style>
+        * {
+            padding: 0px;
+            margin: 0px;
+        }
+    </style>
+    <script>
+        var pauze = false;
+        function test1() {
+            //console.log(pauze);
+            pauze ? Q.unpauseGame() : Q.pauseGame();
+            pauze = !pauze;
+        }
+    </script>
 </head>
 <body>
-	<input type="button" value="test" id="test1" onclick="test1()" />
+    <input type="button" value="test" id="test1" onclick="test1()" />
 </body>
 </html>
