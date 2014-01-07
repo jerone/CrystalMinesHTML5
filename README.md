@@ -5,7 +5,6 @@ This project tries to port the game to web, with use of HTML5, JavaScript and CS
 ## Dependecies
 * The server is running on [NodeJS](http://nodejs.org).
 * The Javascript game engine is [Quintus](https://github.com/cykod/Quintus).
-* Other libraries are [RequireJS](http://requirejs.org) and maybe [jQuery](http://jquery.com).
 
 ## Information
 * Crystal Mines II on Wikipedia - http://en.wikipedia.org/wiki/Crystal_Mines_II
@@ -18,3 +17,4 @@ This project tries to port the game to web, with use of HTML5, JavaScript and CS
 * Crystal Mines for NintendoDS - http://www.hes.net/newsite/products/prodinfo.php?pagerequest=NDSCMS000960
 * Songbird's Crystal Mines II: Buried Treasure - http://www.songbird-productions.com/cm2bt.shtml
 * Songbird's Crystal Mines II: Buried Treasure expansion CD - http://www.songbird-productions.com/cm2bt_cd.shtml
+* Vizzed Crystal Mines II online game rom - http://www.vizzed.com/play/crystal-mines-ii-al-online-atari-lynx-36728-game
