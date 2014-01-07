@@ -18,10 +18,10 @@ window.addEventListener("load", function () {
 
 
 
-  Q.load("sprites.png, sprites.json, level-1.json, tiles.png", function () {
+  Q.load("sprites.png, sprites.json, level-1.json, level-2.json, level-3.json, tiles.png", function () {
     Q.sheet("tiles", "tiles.png", { tilew: config.spriteDimension, tileh: config.spriteDimension });
     Q.compileSheets("sprites.png", "sprites.json");
-    Q.stageScene("level-1");
+    Q.stageScene("level-2");
   });
 
 
@@ -55,13 +55,13 @@ window.addEventListener("load", function () {
     init: function (p) {
       this._super(p, {
         sheet: 'enemy',
-        vx: 10,
-        vy: 10,
+        vx: 20,
+        vy: 20,
         scale: config.scale
       });
 
-      this.add('WalkAround');
-      //this.add('2dAround');
+      this.add('WalkAround2');
+   //   this.add('2d');
 
       this.on("bump.left,bump.right,bump.bottom,bump.top", function (collision) {
         if (collision.obj.isA("Player")) {
@@ -144,6 +144,46 @@ window.addEventListener("load", function () {
 		}));*/
   });
 
+  Q.scene("level-2", function (stage) {
+
+    // add level;
+    var tileLayer = new (Q.TileLayer.extend({
+      init: function (props, defaultProps) {
+        this._super(Q._extend({
+          dataAsset: 'level-2.json',
+          sheet: 'tiles',
+          tileW: config.spriteDimension,
+          tileH: config.spriteDimension,
+          scale: config.scale
+        }, props), defaultProps);
+      }
+    }))();
+    //tileLayer.matrix.scale(config.scale, config.scale);
+    stage.collisionLayer(tileLayer);
+
+    // add player;
+    var player = stage.insert(new Q.Player({
+      x: placeSprite(20),
+      y: placeSprite(7)
+    }));
+    //stage.add("viewport").follow(player);
+
+    // add enemies;
+    /*stage.insert(new Q.Enemy({ 
+		x: placeSprite(23), 
+		y: placeSprite(3) 
+		}));*/
+    stage.insert(new Q.Enemy({
+      x: placeSprite(4),
+      y: placeSprite(3)
+    }));
+    /*
+		// add exit;
+		stage.insert(new Q.Exit({ 
+		x: placeSprite(6), 
+		y: placeSprite(4)
+		}));*/
+  });
 
 
 
@@ -152,27 +192,13 @@ window.addEventListener("load", function () {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-  Q.component("2dAround", {
+  Q.component("WalkAround2", {
     added: function () {
       var entity = this.entity;
       Q._defaults(entity.p, {
         vx: 0,
         vy: 0,
-        ax: 0,
-        ay: 0,
-        gravity: 1,
+        direction: 2,
         collisionMask: Q.SPRITE_DEFAULT
       });
       entity.on("step", this, "step");
@@ -180,96 +206,41 @@ window.addEventListener("load", function () {
     },
 
     collision: function (col, last) {
-      var entity = this.entity,
-						p = entity.p,
-						magnitude = 0;
-
-      col.impact = 0;
-      var impactX = Math.abs(p.vx);
-      var impactY = Math.abs(p.vy);
-
-      p.x -= col.separate[0];
-      p.y -= col.separate[1];
-
-      // Top collision
-      if (col.normalY < -0.3) {
-        if (p.vy > 0) { p.vy = 0; }
-        col.impact = impactY;
-        entity.trigger("bump.bottom", col);
+      this.entity.p.x -= col.separate[0];
+      this.entity.p.y -= col.separate[1];
+      if (col.normalX > 0) { // bump left;
+        this.entity.p.vy = -Math.abs(this.entity.p.vy);
+        this.entity.p.vx = -Math.abs(this.entity.p.vx);
       }
-      if (col.normalY > 0.3) {
-        if (p.vy < 0) { p.vy = 0; }
-        col.impact = impactY;
-
-        entity.trigger("bump.top", col);
+      else if (col.normalX < 0) { // bump right;
+        this.entity.p.vy = Math.abs(this.entity.p.vy);
+        this.entity.p.vx = Math.abs(this.entity.p.vx);
       }
-
-      if (col.normalX < -0.3) {
-        if (p.vx > 0) { p.vx = 0; }
-        col.impact = impactX;
-        entity.trigger("bump.right", col);
+      if (col.normalY > 0) { // bump top;
+        this.entity.p.vy = -Math.abs(this.entity.p.vy);
+        this.entity.p.vx = Math.abs(this.entity.p.vx);
       }
-      if (col.normalX > 0.3) {
-        if (p.vx < 0) { p.vx = 0; }
-        col.impact = impactX;
-
-        entity.trigger("bump.left", col);
+      else if (col.normalY < 0) { // bump bottom;
+        this.entity.p.vy = Math.abs(this.entity.p.vy);
+        this.entity.p.vx = -Math.abs(this.entity.p.vx);
       }
-
-
     },
-
     step: function (dt) {
-      var p = this.entity.p,
-						dtStep = dt;
-      // TODO: check the entity"s magnitude of vx and vy,
-      // reduce the max dtStep if necessary to prevent 
-      // skipping through objects.
-      while (dtStep > 0) {
-        dt = Math.min(1 / 30, dtStep);
-        // Updated based on the velocity and acceleration
-        p.vx += p.ax * dt + Q.gravityX * dt * p.gravity;
-        p.vy += p.ay * dt + Q.gravityY * dt * p.gravity;
-        p.x += p.vx * dt;
-        p.y += p.vy * dt;
-
-        this.entity.stage.collide(this.entity);
-        dtStep -= dt;
-      }
-    }
-  });
-
-  // custom 2d component;
-  Q.component("aiRound", {
-    added: function () {
-      this.entity.on("bump.right", this, "goBottom");
-      this.entity.on("bump.bottom", this, "goLeft");
-      this.entity.on("bump.left", this, "goTop");
-      this.entity.on("bump.top", this, "goRight");
-      this.entity.on("hit", this, "collision");
-      this.entity.on("step", this, "step");
-    },
-
-    goLeft: function (col) {
-      this.entity.p.vx = -col.impact;
-    },
-    goRight: function (col) {
-      this.entity.p.vx = col.impact;
-    },
-    goTop: function (col) {
-      this.entity.p.vy = -col.impact;
-    },
-    goBottom: function (col) {
-      this.entity.p.vy = col.impact;
-    },
-    collision: function () {
-      //console.log("collision", this, arguments);
-    },
-    step: function () {
-      //console.log("step", this, arguments);
+      this.entity.p.x += this.entity.p.vx * dt;
+      this.entity.p.y += this.entity.p.vy * dt;
       this.entity.stage.collide(this.entity);
     }
   });
+
+
+
+
+
+
+
+
+
+
 
 
   var dir = "";
@@ -292,21 +263,32 @@ window.addEventListener("load", function () {
 						p = entity.p;
 
       var direction = "";
+      var x = 0;
+      var y = 0;
+
       if (col.normalX > 0) {
         direction = "left";
+        x = -Math.abs(p.vx);
+        y = -Math.abs(p.vy);
       }
       else if (col.normalX < 0) {
         direction = "right";
+        x = Math.abs(p.vx);
+        y = Math.abs(p.vy);
       }
       if (col.normalY > 0) {
         direction = "top";
+        x = Math.abs(p.vx);
+        y = -Math.abs(p.vy);
       }
       else if (col.normalY < 0) {
         direction = "bottom";
+        x = -Math.abs(p.vx);
+        y = Math.abs(p.vy);
       }
 
+      console.log(col.normalX, col.normalY, direction, p.vx, p.vy, x, y);
       if (dir !== direction) {
-        console.log(direction);
         dir = direction;
       }
 
@@ -384,7 +366,7 @@ window.addEventListener("load", function () {
     },
 
     step: function (dt) {
-      var p = this.entity.p;
+   //   var p = this.entity.p;
 
       //console.log("test", p.x, p.y, p.vx, p.vy);
       // debugger;
@@ -409,10 +391,10 @@ window.addEventListener("load", function () {
       //}
 
 
+      /*
       var obj = this.entity,
 						colOjb = this.entity.stage;
 
-      /*
 			var p = this.entity.p,
 						tileStartX = Math.floor((obj.p.x - obj.p.cx - p.x) / p.tileW),
 						tileStartY = Math.floor((obj.p.y - obj.p.cy - p.y) / p.tileH),
@@ -454,8 +436,8 @@ window.addEventListener("load", function () {
       */
 
 
-      p.x += p.vx * dt;
-      p.y += p.vy * dt;
+      this.entity.p.x += this.entity.p.vx * dt;
+      this.entity.p.y += this.entity.p.vy * dt;
       this.entity.stage.collide(this.entity);
     }
   });
