@@ -3,7 +3,7 @@ window.addEventListener("load", function () {
 
   var config = {
     spriteDimension: 13, // amount of pixels the sprites are width & height;
-    scale: 1				// overall scale;
+    scale: 2				// overall scale;
   };
 
 
@@ -11,7 +11,7 @@ window.addEventListener("load", function () {
     placeSprite: function (tileIndex) {  // Calculate correct tile location;
       var tileLocation = tileIndex * config.spriteDimension,
         tileHalf = config.spriteDimension / 2;
-      return (tileLocation - tileHalf) * config.scale;
+      return (tileLocation - tileHalf);
     }
   };
 
@@ -24,7 +24,7 @@ window.addEventListener("load", function () {
   //Q.debug = true;
 
 
-  Q.load(["sprites.png", "sprites.json", "level-1.json", "level-2.json", "level-3.json", "tiles.png"], function () {
+  Q.load(["tiles.png", "sprites.png", "sprites.json", "level-1.json", "level-2.json", "level-3.json"], function () {
 
     Q.sheet("tiles", "tiles.png", { tilew: config.spriteDimension, tileh: config.spriteDimension });
 
@@ -54,8 +54,7 @@ window.addEventListener("load", function () {
         sprite: "player",
         stepping: false,
         stepDistance: config.spriteDimension / 4,
-        stepDelay: 0.05,
-        scale: config.scale
+        stepDelay: 0.05
       });
 
       this.add('2d, stepControls, animation');
@@ -87,8 +86,7 @@ window.addEventListener("load", function () {
         sprite: "enemy",
         type: Q.SPRITE_ENEMY,
         vx: 30,
-        vy: 30,
-        scale: config.scale
+        vy: 30
       });
 
       this.add('WalkAround, animation');
@@ -107,12 +105,14 @@ window.addEventListener("load", function () {
 
   Q.Sprite.extend("Exit", {
     init: function (p) {
-      this._super(p, { sheet: 'exit', scale: config.scale });
+      this._super(p, { sheet: 'exit' });
     }
   });
 
 
   Q.scene("level-1", function (stage) {
+    stage.add("viewport");
+    stage.viewport.scale = config.scale;
 
     // add level;
     var tileLayer = new (Q.TileLayer.extend({
@@ -121,12 +121,10 @@ window.addEventListener("load", function () {
           dataAsset: 'level-1.json',
           sheet: 'tiles',
           tileW: config.spriteDimension,
-          tileH: config.spriteDimension,
-          scale: config.scale
+          tileH: config.spriteDimension
         }, props), defaultProps);
       }
     }))();
-    //tileLayer.matrix.scale(config.scale, config.scale);
     stage.collisionLayer(tileLayer);
 
     // add player;
@@ -149,6 +147,8 @@ window.addEventListener("load", function () {
   });
 
   Q.scene("level-2", function (stage) {
+    stage.add("viewport");
+    stage.viewport.scale = config.scale;
 
     // add level;
     var tileLayer = new (Q.TileLayer.extend({
@@ -157,12 +157,10 @@ window.addEventListener("load", function () {
           dataAsset: 'level-2.json',
           sheet: 'tiles',
           tileW: config.spriteDimension,
-          tileH: config.spriteDimension,
-          scale: config.scale
+          tileH: config.spriteDimension
         }, props), defaultProps);
       }
     }))();
-    //tileLayer.matrix.scale(config.scale, config.scale);
     stage.collisionLayer(tileLayer);
 
     // add player;
@@ -185,6 +183,8 @@ window.addEventListener("load", function () {
   });
 
   Q.scene("level-3", function (stage) {
+    stage.add("viewport");
+    stage.viewport.scale = config.scale;
 
     // add level;
     var tileLayer = new (Q.TileLayer.extend({
@@ -193,12 +193,10 @@ window.addEventListener("load", function () {
           dataAsset: 'level-3.json',
           sheet: 'tiles',
           tileW: config.spriteDimension,
-          tileH: config.spriteDimension,
-          scale: config.scale
+          tileH: config.spriteDimension
         }, props), defaultProps);
       }
     }))();
-    //tileLayer.matrix.scale(config.scale, config.scale);
     stage.collisionLayer(tileLayer);
 
     // add player;
