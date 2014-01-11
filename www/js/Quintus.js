@@ -64,9 +64,9 @@ window.addEventListener("load", function () {
       } else if (this.p.diffX < 0) {
         this.play("walk_left");
       } else if (this.p.diffY > 0) {
-        this.play("walk_up");
-      } else if (this.p.diffY < 0) {
         this.play("walk_down");
+      } else if (this.p.diffY < 0) {
+        this.play("walk_up");
       }
     }
   });
