@@ -3,7 +3,8 @@ window.addEventListener("load", function () {
 
   var config = {
     spriteDimension: 13, // amount of pixels the sprites are width & height;
-    scale: 2				// overall scale;
+    scale: 2,				// overall scale;
+    debug: true
   };
 
 
@@ -16,12 +17,12 @@ window.addEventListener("load", function () {
   };
 
 
-  var Q = window.Q = Quintus()
+  var Q = window.Q = Quintus({ development: config.debug })
 					.include("Sprites, Scenes, Input, 2D, Anim, Touch, UI")
 					.setup({ maximize: true })
 					.controls();
 
-  //Q.debug = true;
+  Q.debug = config.debug;
 
 
   Q.load(["tiles.png", "sprites.png", "sprites.json", "level-1.json", "level-2.json", "level-3.json"], function () {
