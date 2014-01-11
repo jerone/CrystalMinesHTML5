@@ -264,6 +264,16 @@ window.addEventListener("load", function () {
   });
 
 
+  // Pause game by pressing P;
+  Q.KEY_NAMES.P = 80;
+  Q.input.keyboardControls({ P: "pause" });
+  var pauze = false;
+  Q.input.on("pause", function () {
+    pauze ? Q.unpauseGame() : Q.pauseGame();
+    pauze = !pauze;
+  });
+
+
   // override this method to show background sprite;
   Q.TileLayer.prototype.drawableTile = function (tileNum) {
     return tileNum >= 0;
