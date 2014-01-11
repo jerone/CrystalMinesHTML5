@@ -9,8 +9,8 @@ var config = {
 window.addEventListener("load", function () {
 
 
-  window.Q = Quintus()
-					.include("Sprites, Scenes, Input, 2D, Touch, UI")
+  var Q = window.Q = Quintus()
+					.include("Sprites, Scenes, Input, 2D, Anim, Touch, UI")
 					.setup({ maximize: true })
 					.controls();
 
@@ -20,6 +20,18 @@ window.addEventListener("load", function () {
 
   Q.load("sprites.png, sprites.json, level-1.json, level-2.json, level-3.json, tiles.png", function () {
     Q.sheet("tiles", "tiles.png", { tilew: config.spriteDimension, tileh: config.spriteDimension });
+    Q.animations("player", {
+      walk_right: { frames: [0], loop: true },
+      walk_down: { frames: [1], loop: true },
+      walk_left: { frames: [2], loop: true },
+      walk_up: { frames: [3], loop: true }
+    });
+    Q.animations("enemy", {
+      walk_right: { frames: [0], loop: true },
+      walk_down: { frames: [1], loop: true },
+      walk_left: { frames: [2], loop: true },
+      walk_up: { frames: [3], loop: true }
+    });
     Q.compileSheets("sprites.png", "sprites.json");
     Q.stageScene("level-2");
   });
@@ -30,13 +42,14 @@ window.addEventListener("load", function () {
     init: function (p) {
       this._super(p, {
         sheet: "player",
+        sprite: "player",
         stepping: false,
         stepDistance: config.spriteDimension / 4,
         stepDelay: 0.05,
         scale: config.scale
       });
 
-      this.add('2d, stepControls');
+      this.add('2d, stepControls, animation');
 
       this.on("hit.sprite", function (collision) {
         if (collision.obj.isA("Exit")) {
@@ -44,6 +57,17 @@ window.addEventListener("load", function () {
           this.destroy();
         }
       });
+    },
+    step: function () {
+      if (this.p.diffX > 0) {
+        this.play("walk_right");
+      } else if (this.p.diffX < 0) {
+        this.play("walk_left");
+      } else if (this.p.diffY > 0) {
+        this.play("walk_up");
+      } else if (this.p.diffY < 0) {
+        this.play("walk_down");
+      }
     }
   });
 
@@ -55,27 +79,23 @@ window.addEventListener("load", function () {
     init: function (p) {
       this._super(p, {
         sheet: 'enemy',
+        sprite: "enemy",
         vx: 20,
         vy: 20,
         scale: config.scale
       });
 
-      this.add('WalkAround2');
-   //   this.add('2d');
+      this.add('WalkAround2, animation');
 
-      this.on("bump.left,bump.right,bump.bottom,bump.top", function (collision) {
-        if (collision.obj.isA("Player")) {
-          Q.stageScene("endGame", 1, { label: "You Died" });
-          collision.obj.destroy();
-        }
-      });
-
-      //this.on("bump.top", function(collision) {
-      //	if(collision.obj.isA("Player")) { 
-      //		this.destroy();
-      //		collision.obj.p.vy = -300;
-      //	}
-      //});
+      /*     this.on("bump.left,bump.right,bump.bottom,bump.top", function (collision) {
+						 if (collision.obj.isA("Player")) {
+							 Q.stageScene("endGame", 1, { label: "You Died" });
+							 collision.obj.destroy();
+						 }
+					 });*/
+    },
+    step: function () {
+      this.play("walk_" + this.p.direction);
     }
   });
 
@@ -127,17 +147,12 @@ window.addEventListener("load", function () {
     }));
     //stage.add("viewport").follow(player);
 
-    // add enemies;
-    /*stage.insert(new Q.Enemy({ 
-		x: placeSprite(23), 
-		y: placeSprite(3) 
-		}));*/
     stage.insert(new Q.Enemy({
       x: placeSprite(4),
       y: placeSprite(2)
     }));
-    /*
-		// add exit;
+
+    /*// add exit;
 		stage.insert(new Q.Exit({ 
 		x: placeSprite(6), 
 		y: placeSprite(4)
@@ -168,23 +183,17 @@ window.addEventListener("load", function () {
     }));
     //stage.add("viewport").follow(player);
 
-    // add enemies;
-    /*stage.insert(new Q.Enemy({ 
-		x: placeSprite(23), 
-		y: placeSprite(3) 
-		}));*/
     stage.insert(new Q.Enemy({
-      x: placeSprite(4),
+      x: placeSprite(6),
       y: placeSprite(3)
     }));
-    /*
-		// add exit;
+
+    /*// add exit;
 		stage.insert(new Q.Exit({ 
 		x: placeSprite(6), 
 		y: placeSprite(4)
 		}));*/
   });
-
 
 
 
@@ -198,8 +207,8 @@ window.addEventListener("load", function () {
       Q._defaults(entity.p, {
         vx: 0,
         vy: 0,
-        direction: 2,
-        collisionMask: Q.SPRITE_DEFAULT
+        collisionMask: Q.SPRITE_DEFAULT,
+        direction: 'right'
       });
       entity.on("step", this, "step");
       entity.on("hit", this, "collision");
@@ -209,18 +218,22 @@ window.addEventListener("load", function () {
       this.entity.p.x -= col.separate[0];
       this.entity.p.y -= col.separate[1];
       if (col.normalX > 0) { // bump left;
+        this.entity.p.direction = "up";
         this.entity.p.vy = -Math.abs(this.entity.p.vy);
         this.entity.p.vx = -Math.abs(this.entity.p.vx);
       }
       else if (col.normalX < 0) { // bump right;
+        this.entity.p.direction = "down";
         this.entity.p.vy = Math.abs(this.entity.p.vy);
         this.entity.p.vx = Math.abs(this.entity.p.vx);
       }
       if (col.normalY > 0) { // bump top;
+        this.entity.p.direction = "right";
         this.entity.p.vy = -Math.abs(this.entity.p.vy);
         this.entity.p.vx = Math.abs(this.entity.p.vx);
       }
       else if (col.normalY < 0) { // bump bottom;
+        this.entity.p.direction = "left";
         this.entity.p.vy = Math.abs(this.entity.p.vy);
         this.entity.p.vx = -Math.abs(this.entity.p.vx);
       }
@@ -251,7 +264,6 @@ window.addEventListener("load", function () {
       Q._defaults(entity.p, {
         vx: 0,
         vy: 0,
-        direction: 2,
         collisionMask: Q.SPRITE_DEFAULT
       });
       entity.on("step", this, "step");
@@ -293,7 +305,7 @@ window.addEventListener("load", function () {
       }
 
       //console.log(col.normalX, col.normalY, direction, p.vx, p.vy);
-     // console.log(col.normalX, col.normalY, direction);
+      // console.log(col.normalX, col.normalY, direction);
 
 
 
@@ -366,7 +378,7 @@ window.addEventListener("load", function () {
     },
 
     step: function (dt) {
-   //   var p = this.entity.p;
+      //   var p = this.entity.p;
 
       //console.log("test", p.x, p.y, p.vx, p.vy);
       // debugger;
@@ -392,7 +404,7 @@ window.addEventListener("load", function () {
 
 
       /*
-      var obj = this.entity,
+			var obj = this.entity,
 						colOjb = this.entity.stage;
 
 			var p = this.entity.p,
@@ -403,7 +415,7 @@ window.addEventListener("load", function () {
 						colObj = this.collisionObject,
 						normal = this.collisionNormal,
 						col;
-      
+			
 			normal.collided = false;
 
 			for (var tileY = tileStartY; tileY <= tileEndY; tileY++) {
@@ -433,7 +445,7 @@ window.addEventListener("load", function () {
 			//return normal.collided ? normal : false;
 
 			console.log(normal);
-      */
+			*/
 
 
       this.entity.p.x += this.entity.p.vx * dt;
