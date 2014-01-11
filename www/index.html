@@ -18,18 +18,20 @@
             padding: 0px;
             margin: 0px;
         }
-        input[type=button]{z-index:10;}
+
+        input[type=button] {
+            z-index: 10;
+        }
     </style>
     <script>
         var pauze = false;
-        function test1() {
-            //console.log(pauze);
+        function Pauze() {
             pauze ? Q.unpauseGame() : Q.pauseGame();
             pauze = !pauze;
         }
     </script>
 </head>
 <body>
-    <input type="button" value="test" id="test1" onclick="test1()" />
+    <input type="button" value="Pauze" onclick="Pauze()" />
 </body>
 </html>
