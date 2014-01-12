@@ -3,8 +3,8 @@ window.addEventListener("load", function () {
 
   var config = {
     spriteDimension: 13, // amount of pixels the sprites are width & height;
-    scale: 2,				// overall scale;
-    debug: true
+    scale: 3,				// overall scale;
+    debug: false
   };
 
 
@@ -32,16 +32,20 @@ window.addEventListener("load", function () {
     Q.compileSheets("sprites.png", "sprites.json");
 
     Q.animations("player", {
-      walk_right: { frames: [0], loop: true },
-      walk_down: { frames: [1], loop: true },
-      walk_left: { frames: [2], loop: true },
-      walk_up: { frames: [3], loop: true }
+      walk_right: { frames: [1, 2, 3, 4, 5, 6], rate: 1 / 15, flip: false, loop: false },
+      walk_down: { frames: [7], loop: false },
+      walk_left: { frames: [1, 2, 3, 4, 5, 6], rate: 1 / 15, flip: "x", loop: false },
+      walk_up: { frames: [9], loop: false },
+      stand_right: { frames: [0, 1], rate: 1 / 5, flip: false, loop: true },
+      stand_down: { frames: [7], loop: false },
+      stand_left: { frames: [0, 1], rate: 1 / 5, flip: "x", loop: true },
+      stand_up: { frames: [9], loop: false }
     });
     Q.animations("enemy", {
-      walk_right: { frames: [0], loop: true },
-      walk_down: { frames: [1], loop: true },
-      walk_left: { frames: [2], loop: true },
-      walk_up: { frames: [3], loop: true }
+      walk_right: { frames: [0], loop: false },
+      walk_down: { frames: [1], loop: false },
+      walk_left: { frames: [2], loop: false },
+      walk_up: { frames: [3], loop: false }
     });
 
     Q.stageScene("level-3");
@@ -55,7 +59,9 @@ window.addEventListener("load", function () {
         sprite: "player",
         stepping: false,
         stepDistance: config.spriteDimension / 4,
-        stepDelay: 0.05
+        stepDelay: 0.05,
+        direction: "left",
+        scale:0.5
       });
 
       this.add('2d, stepControls, animation');
@@ -69,13 +75,19 @@ window.addEventListener("load", function () {
     },
     step: function () {
       if (this.p.diffX > 0) {
+        this.p.direction = "right";
         this.play("walk_right");
       } else if (this.p.diffX < 0) {
+        this.p.direction = "left";
         this.play("walk_left");
       } else if (this.p.diffY > 0) {
+        this.p.direction = "down";
         this.play("walk_down");
       } else if (this.p.diffY < 0) {
+        this.p.direction = "up";
         this.play("walk_up");
+      } else {
+        this.play("stand_" + this.p.direction);
       }
     }
   });
