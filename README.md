@@ -1,4 +1,5 @@
-# Crystal Mines II HTML5 <small>*(codename: CrystalMinesHTML5)*</small>
+# Crystal Mines II HTML5 
+<small>*(codename: CrystalMinesHTML5)*</small>
 Crystal Mines II is puzzle video game originaly build for the Lynx.<br/>
 This project tries to port the game to web, with use of HTML5, JavaScript and CSS3.
 
@@ -13,8 +14,7 @@ This project tries to port the game to web, with use of HTML5, JavaScript and CS
 * CrystalMines.net - http://crystalmines.net/
 
 ## Ports
+* Crystal Mines II: Buried Treasure (sequel) - http://www.songbird-productions.com/cm2bt.shtml
 * Crystal Mines for iPhone, iPod touch, and iPad - https://itunes.apple.com/us/app/crystal-mines/id346005891
 * Crystal Mines for NintendoDS - http://www.hes.net/newsite/products/prodinfo.php?pagerequest=NDSCMS000960
-* Songbird's Crystal Mines II: Buried Treasure - http://www.songbird-productions.com/cm2bt.shtml
-* Songbird's Crystal Mines II: Buried Treasure expansion CD - http://www.songbird-productions.com/cm2bt_cd.shtml
 * Vizzed Crystal Mines II online game rom - http://www.vizzed.com/play/crystal-mines-ii-al-online-atari-lynx-36728-game
