@@ -1,5 +1,6 @@
 # Crystal Mines II HTML5 
-<small>*(codename: CrystalMinesHTML5)*</small>
+>*(codename: CrystalMinesHTML5)*<br/>
+
 Crystal Mines II is puzzle video game originaly build for the Lynx.<br/>
 This project tries to port the game to web, with use of HTML5, JavaScript and CSS3.
 
